@@ -28,7 +28,7 @@ One of the great things about `persistent` is that the model info keys are just 
 Name       | Type           | Default           | Meaning      
 -----------|----------------|-------------------|------------------------------
 dbtype     | XMLDB_TYPE_*   | based on `type`   | Underlying database type, equivalent to `TYPE` attribute in `install.xml`.
-precision  | string         | based on `type`   | Database precision, equivalent to `LENGTH` and `DECIMALS` attribute in `install.xml`, comma separated. **Required for `dbtype => XMLDB_TYPE_CHAR`.**
+precision  | string         | based on `type` and `dbtype` | Database precision, equivalent to `LENGTH` and `DECIMALS` attribute in `install.xml`, comma separated. **Required for `dbtype => XMLDB_TYPE_CHAR`.**
 sequence   | bool           | false             | Automatically increasing sequence, like id; equivalent to `SEQUENCE` attribute in `install.xml`.
 foreignkey | key            | null              | Create a foreign key, equivalent to `<KEY type="foreign">` in `install.xml`.
 uniquekey  | key            | null              | Create a unique key, equivalent to `<KEY type="unique">` in `install.xml`.
@@ -67,6 +67,10 @@ protected static function define_properties() {
 ```
 
 \* The adjectives are reversed relative to the XMLDB representation because of [English adjective order](https://en.wikipedia.org/wiki/Adjective#Order).
+
+## Why 'Swan'? ##
+
+This tool was inspired by *South* for Django, which was eventually incorporated into the Django mainline as the official database migration tool. The name South is obviously inspired by the notion of birds migrating south for the winter (in the northern hemisphere). Moodle was developed in Western Australia; the emblem of that state is the black swan, *Cygnus atratus*. It turns out that black swans aren't migratory, so the metaphor doesn't exactly work, but they are nomadic, migrating opportunistically in response to rainfall and drought. Swan doesn't migrate in a set pattern, either - it uses the current state and the desired state, and that's all. (Also it's the nickname of my favourite football team.)
 
 ## License ##
 

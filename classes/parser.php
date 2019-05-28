@@ -121,6 +121,18 @@ class parser {
         return $indexes;
     }
 
+    /**
+     * Update the list of keys or indexes to match the field definitions. The two processes share a lot of code,
+     * so this is factored out into a single function. Key and index definitions take one of three forms:
+     *     TRUE         just create an automatic index or key on this field
+     *     string       create a named index or key, or add this field to the existing named index or key
+     *     [string]     create several named indexes or keys
+     *     'table.name' for foreign keys, specifies the related field
+     *     [string => 'table.name'] create multiple foreign keys
+     * @param  array  &$keys    Initial set of keys or indexes, updated upon return.
+     * @param  [string => XMLDB_*] $keytypes array of field property key to XMLDB_* constant key or index type.
+     * @param  Class $keyclass  The kind of object to create, xmldb_key or xmldb_index
+     */
     private function get_keys_indexes(array &$keys, $keytypes, $keyclass) {
         $properties = $this->persistent::properties_definition();
 

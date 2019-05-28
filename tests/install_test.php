@@ -35,6 +35,11 @@ defined('MOODLE_INTERNAL') || die();
 // The official PHPUnit homepage is at:
 // https://phpunit.de
 
+global $CFG;
+
+require_once('util/persistent.php');
+require_once($CFG->dirroot . '/' . $CFG->admin .'/tool/swan/cli/clilib.php');
+
 /**
  * The install test class.
  *
@@ -44,6 +49,65 @@ defined('MOODLE_INTERNAL') || die();
  */
 class tool_swan_install_testcase extends advanced_testcase {
 
-    // Write the tests here as public funcions.
+    public function setUp() {
+
+    }
+
+    private function check_object($actual, $expected, $test = []) {
+        $this->assertNotEmpty($actual);
+        foreach ($test as $t) {
+            $a = $actual->$t();
+            $e = $expected->$t();
+            $this->assertEquals($e, $a, "Failed on $t");
+        }
+    }
+
+    private function check_field($actual, $expected, $test = ['getType','getLength','getDecimals','getNotNull','getUnsigned','getSequence','getDefault']) {
+        $this->check_object($actual, $expected, $test);
+    }
+
+    private function check_key($actual, $expected, $test = ['getType', 'getFields', 'getRefTable', 'getRefFields']) {
+        $this->check_object($actual, $expected, $test);
+    }
+
+    private function check_index($actual, $expected, $test = ['getUnique', 'getFields']) {
+        $this->check_object($actual, $expected, $test);
+    }
+
+    public function test_basic_structure() {
+        $result = make_structure('local_example', 'local/example', [basic_persistent::class], 2019010100);
+
+        // Since XML and PHP outputs aren't strictly defined, we'll look at the actual structure
+        $this->assertEquals('local/example/db', $result->getPath());
+        $this->assertEquals('2019010100', $result->getVersion());
+
+        $table = $result->getTable('test_basic');
+
+        $this->assertNotEmpty($table);
+
+        // Check the default keys
+        $idfield = $table->getField('id');
+        $this->check_field($idfield, new xmldb_field('id', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, XMLDB_SEQUENCE));
+        $usermodifiedfield = $table->getField('usermodified');
+        $this->check_field($usermodifiedfield, new xmldb_field('usermodified', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL));
+        $timecreatedfield = $table->getField('timecreated');
+        $this->check_field($timecreatedfield, new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL));
+        $timemodifiedfield = $table->getField('timemodified');
+        $this->check_field($timemodifiedfield, new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL));
+
+        // Check the keys defined on this table
+        $useridfield = $table->getField('userid');
+        $this->check_field($useridfield, new xmldb_field('userid', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL));
+
+        $messagefield = $table->getField('message');
+        $this->check_field($messagefield, new xmldb_field('userid', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL));
+
+        $readfield = $table->getField('read');
+        $this->check_field($readfield, new xmldb_field('userid', XMLDB_TYPE_INTEGER, 2, null, XMLDB_NOTNULL, 0));
+
+        // Check the foreign key
+        $useridkey = $table->getKey('userid');
+        $this->check_key($useridkey, new xmldb_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']));
+    }
 
 }

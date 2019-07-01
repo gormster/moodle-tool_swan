@@ -85,7 +85,7 @@ if (empty($options['component'])) {
         }
     }
 
-    uksort($candidates, strlen);
+    uksort($candidates, 'strlen');
     $component = end($candidates);
     $dir = key($candidates);
 } else {
